@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import isEqual from 'react-fast-compare'
 
 import { FormalConfig, FormalState, FormalErrors } from './types'
@@ -67,6 +67,12 @@ export default function useFormal<Schema>(
       }
     })
   }, [schema, values, clearErrors, setErrors])
+  
+
+  useEffect(() => {
+      validate()
+    }, [values, validate]
+  )
 
   const reset = useCallback(() => {
     setValues(lastValues)
