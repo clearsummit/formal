@@ -27,6 +27,9 @@ export default function useFormalWeb<Schema>(
       onChange: (e: FormalWebTextFieldEvent) => {
         formal.change(field, e.target.value)
       },
+      onBlur: () => {
+        formal.blur(field)
+      },
     }),
     [formal]
   )

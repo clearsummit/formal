@@ -19,15 +19,16 @@ export interface FormalWebFieldProps {
   name: string
   id: string
   onChange: (e: FormalWebTextFieldEvent) => void
+  onBlur: (e: FormalWebTextFieldEvent) => void
 }
 
 export interface FormalWebResetButtonProps {
-  type: string
+  type?: string
   onClick: () => void
 }
 
 export interface FormalWebSubmitButtonProps {
-  type: string
+  type?: string
 }
 
 export interface FormalWebState<Schema> extends FormalState<Schema> {
