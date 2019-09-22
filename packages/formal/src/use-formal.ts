@@ -43,14 +43,6 @@ export default function useFormal<Schema>(
     },
     []
   )
-  
-  
-  useEffect(() => {
-    const { activeField } = validatedFields
-    if (validationType === 'change' && activeField && typeof values === 'object' && values[activeField]) {
-      validate(activeField)
-    }
-  }, [validate, validatedFields, validatedFields.activeField, validationType, values])
 
   const clearErrors = useCallback(() => {
     setErrors({})
@@ -131,6 +123,13 @@ export default function useFormal<Schema>(
     }),
     [errors, isDirty, isSubmitted, isSubmitting, isValidating]
   )
+
+  useEffect(() => {
+    const { activeField } = validatedFields
+    if (validationType === 'change' && activeField && typeof values === 'object' && values[activeField]) {
+      validate(activeField)
+    }
+  }, [validate, validatedFields, validatedFields.activeField, validationType, values])
 
   const blur = useCallback( () => {
     setValidatedFields((prevValues: {validated: string[], activeField: keyof Schema | null}) => ({validated: prevValues.validated, activeField: null}))
