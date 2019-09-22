@@ -26,4 +26,5 @@ export default [
     'On Submit (async)',
     'validate-on-submit-async'
   ),
+  createStory('Examples/Validation', 'On Change', 'validate-on-change'),
 ]

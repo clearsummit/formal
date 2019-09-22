@@ -22,6 +22,7 @@ Some of the props are just for react web or react native.
   - [FormalConfig](#formalconfig)
     - [schema](#schema)
     - [onSubmit](#onsubmit)
+    - [validationType](#validationtype)
   - [FormalState](#formalstate)
     - [isDirty](#isdirty)
     - [isValid](#isvalid)
@@ -36,6 +37,7 @@ Some of the props are just for react web or react native.
     - [validate](#validate)
     - [reset](#reset)
     - [submit](#submit)
+    - [blur](#blur)
     - [getFormProps](#getformprops)
     - [getFieldProps 💻](#getfieldprops-)
     - [getResetButtonProps](#getresetbuttonprops)
@@ -87,6 +89,7 @@ interface FormalConfig<Schema> {
     values: FormalValues,
     formal: FormalState<Schema>
   ) => void | Promise<any>;
+  validationType?: "change" | null;
 }
 ```
 
@@ -127,6 +130,10 @@ const formalConfig = {
 };
 ```
 
+#### validationType
+
+`validationType` is an optional prop to set validation to happen with the `onChange` event and `onSubmit`. The default is to only validate `onSubmit`.
+
 ### FormalState
 
 This is the state, callbacks, flags and _prop getters_ returned by **useFormal()** hook.
@@ -151,6 +158,7 @@ interface FormalState<Schema> {
   validate: () => void;
   reset: () => void;
   submit: () => void;
+  blur: (field: keyof Schema) => void;
 
   // Getters.
   getFormProps: () => FormalFormProps;
@@ -242,6 +250,14 @@ Programatically submit the form.
 
 ```typescript
 formal.submit();
+```
+
+#### blur
+
+Programatically call formal's `onBlur` cleanup.
+
+```typescript
+formal.blur("firstName");
 ```
 
 #### getFormProps

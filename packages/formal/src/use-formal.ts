@@ -6,14 +6,17 @@ import {
   objectIsEmpty,
   schemaHasAsyncValidation,
   formatYupErrors,
+  equalSets,
+  checkRequired,
 } from './utils'
 
 export default function useFormal<Schema>(
   initialValues: Schema,
-  { schema, onSubmit }: FormalConfig<Schema>
+  { schema, onSubmit, validationType = null }: FormalConfig<Schema>,
 ): FormalState<Schema> {
   const [lastValues, setLastValues] = useState<Schema>(initialValues)
   const [values, setValues] = useState<Schema>(initialValues)
+  const [validatedFields, setValidatedFields] = useState<{validated: string[], activeField:keyof Schema | null}>({validated: [], activeField: null})
 
   const [errors, setErrors] = useState<FormalErrors<Schema>>({})
 
@@ -26,14 +29,17 @@ export default function useFormal<Schema>(
     values,
   ])
 
-  const isValid = useMemo(() => !isDirty || objectIsEmpty(errors), [
-    errors,
-    isDirty,
-  ])
+  const isValid = useMemo(() => {
+    const { validated } = validatedFields
+    // @ts-ignore
+    return !!(!isDirty || objectIsEmpty(errors)) && (!schema || (schema && equalSets(new Set(Object.keys(schema.fields)), new Set(validated)) && checkRequired(schema, values) ))
+  }, [errors, isDirty, schema, validatedFields, values])
 
   const change = useCallback(
     (field: keyof Schema, value: any): void => {
       setValues((prevValues: Schema) => ({ ...prevValues, [field]: value }))
+      // @ts-ignore
+      setValidatedFields((prevValues: {validated: string[], activeField: keyof Schema | null}) => ({validated: [...prevValues.validated, field], activeField: field}))
     },
     []
   )
@@ -42,7 +48,7 @@ export default function useFormal<Schema>(
     setErrors({})
   }, [])
 
-  const validate = useCallback(() => {
+  const validate = useCallback((field: null | keyof Schema = null) => {
     if (!schema) {
       throw new Error(
         'You cannot call validate if you have not provided any schema.'
@@ -57,22 +63,20 @@ export default function useFormal<Schema>(
 
         clearErrors()
         if (isAsync) setIsValidating(true)
-        await schema[validationMethod](values, { abortEarly: false })
+        if (field != null && typeof field === 'string') {
+          await schema.validateAt(field, values)
+        } else {
+          await schema[validationMethod](values, { abortEarly: false })
+        }
         resolve()
       } catch (error) {
-        setErrors(formatYupErrors<Schema>(error))
+        setErrors(formatYupErrors<Schema>(error, field))
         reject()
       } finally {
         if (isAsync) setIsValidating(false)
       }
     })
   }, [schema, values, clearErrors, setErrors])
-  
-
-  useEffect(() => {
-      validate()
-    }, [values, validate]
-  )
 
   const reset = useCallback(() => {
     setValues(lastValues)
@@ -120,6 +124,17 @@ export default function useFormal<Schema>(
     [errors, isDirty, isSubmitted, isSubmitting, isValidating]
   )
 
+  useEffect(() => {
+    const { activeField } = validatedFields
+    if (validationType === 'change' && activeField && typeof values === 'object' && values[activeField]) {
+      validate(activeField)
+    }
+  }, [validate, validatedFields, validatedFields.activeField, validationType, values])
+
+  const blur = useCallback( () => {
+    setValidatedFields((prevValues: {validated: string[], activeField: keyof Schema | null}) => ({validated: prevValues.validated, activeField: null}))
+  }, [])
+
   return {
     isDirty,
     isValid,
@@ -137,5 +152,6 @@ export default function useFormal<Schema>(
     getFieldProps,
     getResetButtonProps,
     getSubmitButtonProps,
+    blur,
   }
 }

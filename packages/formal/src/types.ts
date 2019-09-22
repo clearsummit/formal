@@ -2,7 +2,8 @@ import { Schema as YupSchema } from 'yup'
 
 export interface FormalConfig<Schema> {
   schema?: YupSchema<Schema>
-  onSubmit: (values: Schema) => void
+  onSubmit: (values: Schema) => void,
+  validationType?: 'change' | null
 }
 
 export type FormalErrors<Schema> = {
@@ -47,9 +48,10 @@ export interface FormalState<Schema> {
   change: (field: keyof Schema, value: any) => void
   setErrors: (errors: FormalErrors<Schema>) => void
   clearErrors: () => void
-  validate: () => void
+  validate: (field?: null| keyof Schema) => void
   reset: () => void
   submit: () => void
+  blur: (field: keyof Schema) => void;
 
   // Getters.
   getFieldProps: (field: keyof Schema) => FormalFieldProps
