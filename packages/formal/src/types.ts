@@ -51,7 +51,7 @@ export interface FormalState<Schema> {
   validate: (field?: null| keyof Schema) => void
   reset: () => void
   submit: () => void
-  blur: (field: keyof Schema) => void;
+  blur: (field: keyof Schema) => void
 
   // Getters.
   getFieldProps: (field: keyof Schema) => FormalFieldProps

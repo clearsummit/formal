@@ -16,7 +16,7 @@ export default function useFormal<Schema>(
 ): FormalState<Schema> {
   const [lastValues, setLastValues] = useState<Schema>(initialValues)
   const [values, setValues] = useState<Schema>(initialValues)
-  const [validatedFields, setValidatedFields] = useState<{validated: string[], activeField:keyof Schema | null}>({validated: [], activeField: null})
+  const [validatedFields, setValidatedFields] = useState<{validated: Set<string>, activeField:keyof Schema | null}>({validated: new Set(), activeField: null})
 
   const [errors, setErrors] = useState<FormalErrors<Schema>>({})
 
@@ -32,14 +32,14 @@ export default function useFormal<Schema>(
   const isValid = useMemo(() => {
     const { validated } = validatedFields
     // @ts-ignore
-    return !!(!isDirty || objectIsEmpty(errors)) && (!schema || (schema && equalSets(new Set(Object.keys(schema.fields)), new Set(validated)) && checkRequired(schema, values) ))
+    return !!(!isDirty || objectIsEmpty(errors)) && (!schema || (schema && equalSets(new Set(Object.keys(schema.fields)), validated) && checkRequired(schema, values) ))
   }, [errors, isDirty, schema, validatedFields, values])
 
   const change = useCallback(
     (field: keyof Schema, value: any): void => {
       setValues((prevValues: Schema) => ({ ...prevValues, [field]: value }))
       // @ts-ignore
-      setValidatedFields((prevValues: {validated: string[], activeField: keyof Schema | null}) => ({validated: [...prevValues.validated, field], activeField: field}))
+      setValidatedFields((prevValues: {validated: string[], activeField: keyof Schema | null}) => ({validated: prevValues.validated.add(field), activeField: field}))
     },
     []
   )
@@ -132,7 +132,7 @@ export default function useFormal<Schema>(
   }, [validate, validatedFields, validatedFields.activeField, validationType, values])
 
   const blur = useCallback( () => {
-    setValidatedFields((prevValues: {validated: string[], activeField: keyof Schema | null}) => ({validated: prevValues.validated, activeField: null}))
+    setValidatedFields((prevValues: {validated: Set<string>, activeField: keyof Schema | null}) => ({validated: prevValues.validated, activeField: null}))
   }, [])
 
   return {
