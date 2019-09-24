@@ -17,6 +17,7 @@ Some of the props are just for react web or react native.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [useFormal](#useformal)
   - [FormalValues](#formalvalues)
   - [FormalConfig](#formalconfig)
@@ -158,7 +159,7 @@ interface FormalState<Schema> {
   validate: () => void;
   reset: () => void;
   submit: () => void;
-  blur: (field: keyof Schema) => void;
+  blur: () => void;
 
   // Getters.
   getFormProps: () => FormalFormProps;
@@ -257,7 +258,7 @@ formal.submit();
 Programatically call formal's `onBlur` cleanup.
 
 ```typescript
-formal.blur("firstName");
+formal.blur();
 ```
 
 #### getFormProps

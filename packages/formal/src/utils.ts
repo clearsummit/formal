@@ -45,18 +45,17 @@ export function schemaHasAsyncValidation<Schema>(
 
 export function equalSets(set1: Set<string>, set2: Set<string>) {
    if (set1.size !== set2.size) return false
-    // @ts-ignore
     for (const item of set1) if (!set2.has(item)) return false
     return true
 }
 
 
-export function checkRequired<Schema>(schema: YupSchema<Schema>, values: Schema) {
+export function checkRequired<Schema>(schema: YupSchema<Schema>, values: {[key: string]: string | number}) {
   if (schema && schema.hasOwnProperty('fields')) {
-    // @ts-ignore
+    // @ts-ignore yup schema type is out of date and missing fields property
     for (const field in schema.fields) {
       // @ts-ignore
-      if (schema.fields[field]._exclusive.required && (values[field] === undefined || values[field] === '')) {
+      if (schema.fields[field]._exclusive.required && (values[field] === undefined || values[field] === '' || values[field] === null)) {
         return false
       }
     }

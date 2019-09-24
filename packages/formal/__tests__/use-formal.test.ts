@@ -1,4 +1,5 @@
 import { renderHook, cleanup, act } from 'react-hooks-testing-library'
+import * as yup from 'yup'
 import useFormal from '../src/use-formal'
 
 const initialValues = {
@@ -6,6 +7,15 @@ const initialValues = {
   lastName: 'Stark',
   email: 'ironman@avengers.io',
 }
+
+ const schema = yup.object().shape({
+      firstName: yup.string().required(),
+      lastName: yup.string().required(),
+      email: yup
+        .string()
+        .email()
+        .required(),
+    })
 
 afterEach(cleanup)
 
@@ -136,6 +146,7 @@ describe('useFormal()', () => {
 
       expect(result.current.values.firstName).toBe(newName)
       expect(result.current.values.lastName).toBe(newLastName)
+      expect(result.current.validatedFields.activeField).toBe('lastName')
     })
   })
 
@@ -324,4 +335,85 @@ describe('useFormal()', () => {
       it('should be true if the form is submitting', () => {})
     })
   })
+})
+
+
+describe('values useEffect()', () => {
+    it('should be true if the form is not dirty', () => {
+        const { result } = renderHook(() =>
+          useFormal(initialValues, {
+            onSubmit: values => values,
+          })
+        )
+
+        expect(result.current.getSubmitButtonProps().disabled).toBeTruthy()
+      })
+})
+
+
+describe('.blur()', () => {
+  it('should set activeField to null', () => {
+    const { result } = renderHook(() =>
+      useFormal(initialValues, {
+        onSubmit: values => values,
+      })
+    )
+    act(() => result.current.change('firstName', 'Logan'))
+    expect(result.current.validatedFields.activeField).toBe('firstName')
+    
+    act(() => result.current.blur())
+    expect(result.current.validatedFields.activeField).toBe(null)
+  })
+})
+
+describe('validationType: "change"', () => {
+  it('should be false if all the fields are not valid', () => {
+    const { result } = renderHook(() =>
+      useFormal(initialValues, {
+        schema,
+        onSubmit: values => values,
+        validationType: 'change',
+      })
+    )
+
+    act(() =>
+      result.current.change('firstName', 'Logan')
+    )
+
+    expect(result.current.isValid).toBeFalsy()
+  })
+
+  it('should validate fields as they change and return isValid after all have been validate', () => {
+    const { result } = renderHook(() =>
+      useFormal(initialValues, {
+        schema,
+        onSubmit: values => values,
+        validationType: 'change',
+      })
+    )
+
+    act(() =>
+      result.current.change('firstName', 'James')
+    )
+    expect(result.current.validatedFields.validated).toEqual(new Set(['firstName']))
+    expect(result.current.validatedFields.activeField).toEqual('firstName')
+    expect(result.current.isValid).toBeFalsy()
+
+    act(() =>
+      result.current.change('lastName', 'Howlett')
+    )
+
+    expect(result.current.validatedFields.validated).toEqual(new Set(['firstName', 'lastName']))
+    expect(result.current.validatedFields.activeField).toEqual('lastName')
+    expect(result.current.isValid).toBeFalsy()
+
+    act(() =>
+      result.current.change('email', 'james@howlett.com')
+    )
+    expect(result.current.validatedFields.validated).toEqual(new Set(['firstName', 'lastName', 'email']))
+    expect(result.current.validatedFields.activeField).toEqual('email')
+    expect(result.current.isValid).toBeTruthy()
+  })
+
+  it('should return error if change to invalid value',() => {})
 })

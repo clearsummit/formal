@@ -43,6 +43,7 @@ export interface FormalState<Schema> {
   // State.
   values: Schema
   errors: FormalErrors<Schema>
+  validatedFields: {validated: Set<string>, activeField:keyof Schema | null}
 
   // Callbacks.
   change: (field: keyof Schema, value: any) => void
@@ -51,7 +52,7 @@ export interface FormalState<Schema> {
   validate: (field?: null| keyof Schema) => void
   reset: () => void
   submit: () => void
-  blur: (field: keyof Schema) => void
+  blur: () => void
 
   // Getters.
   getFieldProps: (field: keyof Schema) => FormalFieldProps

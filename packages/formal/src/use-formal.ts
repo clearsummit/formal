@@ -153,5 +153,6 @@ export default function useFormal<Schema>(
     getResetButtonProps,
     getSubmitButtonProps,
     blur,
+    validatedFields,
   }
 }

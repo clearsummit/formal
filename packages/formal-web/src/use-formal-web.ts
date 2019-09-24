@@ -28,7 +28,7 @@ export default function useFormalWeb<Schema>(
         formal.change(field, e.target.value)
       },
       onBlur: () => {
-        formal.blur(field)
+        formal.blur()
       },
     }),
     [formal]
