@@ -14,7 +14,7 @@ const initialValues = {
 
 export default function BasicExample(): JSX.Element {
   const formal = useFormal(initialValues, {
-    onSubmit: values => {
+    onSubmit: (values: typeof initialValues ) => {
       alert(JSON.stringify(values, null, 2))
     },
   })

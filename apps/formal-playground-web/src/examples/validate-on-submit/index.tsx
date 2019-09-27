@@ -25,7 +25,7 @@ const schema = yup.object().shape({
 export default function ValidateOnSubmitExample(): JSX.Element {
   const formal = useFormal(initialValues, {
     schema,
-    onSubmit: values => {
+    onSubmit: (values: typeof initialValues ) => {
       alert(JSON.stringify(values, null, 2))
     },
   })

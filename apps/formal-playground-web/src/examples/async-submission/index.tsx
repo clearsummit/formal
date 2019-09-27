@@ -15,7 +15,7 @@ const initialValues = {
 
 export default function AsyncSubmissionExample(): JSX.Element {
   const formal = useFormal(initialValues, {
-    onSubmit: async values => {
+    onSubmit: async (values: typeof initialValues ) => {
       await sleep(1)
       alert(JSON.stringify(values, null, 2))
     },
