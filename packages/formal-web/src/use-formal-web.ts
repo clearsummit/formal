@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
-import useFormal, { FormalConfig } from '@kevinwolf/formal'
+import useFormal, { FormalConfig, FormalResetButtonProps, FormalSubmitButtonProps } from '@kevinwolf/formal'
 
-import { FormalWebState, FormalWebTextFieldEvent } from './types'
+import { FormalWebState, FormalWebTextFieldEvent, FormalWebResetButtonProps, FormalWebSubmitButtonProps } from './types'
 
 export default function useFormalWeb<Schema>(
   initialValues: Schema,
@@ -35,7 +35,7 @@ export default function useFormalWeb<Schema>(
   )
 
   const getResetButtonProps = useCallback(
-    () => ({
+    (): FormalResetButtonProps & FormalWebResetButtonProps => ({
       ...formal.getResetButtonProps(),
       type: 'button',
       onClick: () => {
@@ -46,7 +46,7 @@ export default function useFormalWeb<Schema>(
   )
 
   const getSubmitButtonProps = useCallback(
-    () => ({
+    ():FormalSubmitButtonProps & FormalWebSubmitButtonProps => ({
       ...formal.getSubmitButtonProps(),
       type: 'submit',
     }),

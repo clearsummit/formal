@@ -23,12 +23,12 @@ export interface FormalWebFieldProps {
 }
 
 export interface FormalWebResetButtonProps {
-  type: string
+  type: 'button'
   onClick: () => void
 }
 
 export interface FormalWebSubmitButtonProps {
-  type: string
+  type: 'submit'
 }
 
 export interface FormalWebState<Schema> extends FormalState<Schema> {

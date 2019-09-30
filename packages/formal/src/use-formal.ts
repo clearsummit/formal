@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import isEqual from 'react-fast-compare'
 
-import { FormalConfig, FormalState, FormalErrors } from './types'
+import { FormalConfig, FormalState, FormalErrors, FormalSubmitButtonProps, FormalResetButtonProps } from './types'
 import {
   objectIsEmpty,
   schemaHasAsyncValidation,
@@ -109,7 +109,7 @@ export default function useFormal<Schema>(
   )
 
   const getResetButtonProps = useCallback(
-    () => ({
+    (): FormalResetButtonProps => ({
       disabled:
         (!isDirty && objectIsEmpty(errors)) || isValidating || isSubmitting,
     }),
@@ -117,7 +117,7 @@ export default function useFormal<Schema>(
   )
 
   const getSubmitButtonProps = useCallback(
-    () => ({
+    (): FormalSubmitButtonProps => ({
       disabled:
         (!isDirty && !isSubmitted && objectIsEmpty(errors)) || isValidating || isSubmitting,
     }),
