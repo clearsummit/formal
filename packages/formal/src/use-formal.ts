@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useReducer, useMemo, useCallback } from 'react'
 import isEqual from 'react-fast-compare'
 
 import { FormalConfig, FormalState, FormalErrors, FormalSubmitButtonProps, FormalResetButtonProps } from './types'
@@ -16,9 +16,39 @@ export default function useFormal<Schema>(
 ): FormalState<Schema> {
   const [lastValues, setLastValues] = useState<Schema>(initialValues)
   const [values, setValues] = useState<Schema>(initialValues)
-  const [validatedFields, setValidatedFields] = useState<{validated: Set<string>, activeField:keyof Schema | null}>({validated: new Set(), activeField: null})
+  const [validatedFields, setValidatedFields] = useState<{validated: Set<string>, activeField: keyof Schema | null}>({validated: new Set(), activeField: null})
 
-  const [errors, setErrors] = useState<FormalErrors<Schema>>({})
+  const errorReducer = (errors: FormalErrors<Schema>, action: {type: 'CLEAR', payload: keyof Schema | null | undefined }| {type: 'SET', payload: FormalErrors<Schema> }) => {
+    let newErrors
+    switch(action.type) {
+    case 'CLEAR':
+      if (typeof action.payload === 'string') {
+        newErrors =  {...errors, [action.payload]: null}
+      } else {
+        newErrors = {}
+      }
+      break
+    case 'SET':
+        if (typeof action.payload === 'object') {
+          newErrors = {...errors, ...action.payload}
+        }
+        break
+      default:
+          newErrors = errors
+    }
+    return newErrors
+  }
+
+  // @ts-ignore
+  const [errors, errorDispatch] = useReducer(errorReducer, {})
+
+  const setErrors = useCallback((payload: FormalErrors<Schema>) => {
+    errorDispatch({type: 'SET', payload})
+  }, [errorDispatch])
+
+  const clearErrors = useCallback((payload?: null | undefined | keyof Schema) => {
+    errorDispatch({type: 'CLEAR', payload})
+  },[errorDispatch])
 
   const [isValidating, setIsValidating] = useState<boolean>(false)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
@@ -44,11 +74,7 @@ export default function useFormal<Schema>(
     []
   )
 
-  const clearErrors = useCallback(() => {
-    setErrors({})
-  }, [])
-
-  const validate = useCallback((field: null | keyof Schema = null) => {
+  const validate = useCallback((field?: null | undefined | keyof Schema) => {
     if (!schema) {
       throw new Error(
         'You cannot call validate if you have not provided any schema.'
@@ -60,14 +86,13 @@ export default function useFormal<Schema>(
 
       try {
         const validationMethod = isAsync ? 'validate' : 'validateSync'
-
-        clearErrors()
         if (isAsync) setIsValidating(true)
         if (field != null && typeof field === 'string') {
           await schema.validateAt(field, values)
         } else {
           await schema[validationMethod](values, { abortEarly: false })
         }
+        clearErrors(field)
         resolve()
       } catch (error) {
         setErrors(formatYupErrors<Schema>(error, field))

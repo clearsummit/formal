@@ -47,9 +47,9 @@ export interface FormalState<Schema> {
 
   // Callbacks.
   change: (field: keyof Schema, value: any) => void
-  setErrors: (errors: FormalErrors<Schema>) => void
-  clearErrors: () => void
-  validate: (field?: null| keyof Schema) => void
+  setErrors: (errors: FormalErrors<Schema>, field?: keyof Schema) => void
+  clearErrors: (field?: undefined | keyof Schema) => void
+  validate: (field?: undefined | null | keyof Schema) => void
   reset: () => void
   submit: () => void
   blur: () => void
